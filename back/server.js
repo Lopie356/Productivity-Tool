@@ -14,24 +14,42 @@ mongoose.connect(process.env.MONGO_URI, {
 
 const sessionSchema = new mongoose.Schema({
     sessionId: { type: String, required: true, unique: true },
-    sessionName: { type: String, required: true },
-    description: { type: String, required: true },
-    duration: { type: Number, default: null },
+    date: { type: String, required: true },
+    time: { type: String, required: true },
+    duration: { type: Number, required: true },
+    activityMinutes: { type: Number, required: true },
+    targetMinutes: { type: Number, required: true },
+    completedTasks: { type: Number, required: true },
+    totalTasks: { type: Number, required: true },
+    mood: { type: String, required: true },
+    score: { type: Number, required: true },
 });
 
 const Session = mongoose.model("Session", sessionSchema);
 
 app.post("/api/session", async (req, res) => {
-    const { sessionName, description } = req.body;
+    const { date, time, duration, activityMinutes, targetMinutes, completedTasks, totalTasks, mood } = req.body;
 
-    if (!sessionName || !description) {
-        return res.status(400).json({ message: "Session name and description are required" });
+    if (!date || !time || !duration || !activityMinutes || !targetMinutes || !completedTasks || !totalTasks || !mood) {
+        return res.status(400).json({ message: "All fields are required" });
     }
+
+    const activityRatio = targetMinutes > 0 ? activityMinutes / targetMinutes : 0;
+    const taskRatio = totalTasks > 0 ? completedTasks / totalTasks : 0;
+    
+    const score = Math.round(activityRatio * taskRatio * duration * 100);
 
     const newSession = new Session({
         sessionId: uuidv4(),
-        sessionName,
-        description,
+        date,
+        time,
+        duration,
+        activityMinutes,
+        targetMinutes,
+        completedTasks,
+        totalTasks,
+        mood,
+        score,
     });
 
     try {
@@ -42,38 +60,26 @@ app.post("/api/session", async (req, res) => {
     }
 });
 
-app.post("/api/session/casual", async (req, res) => {
-    const casualSession = new Session({
-        sessionId: uuidv4(),
-        sessionName: "Casual Session",
-        description: "User has selected a casual session",
-        duration: 30,
-    });
-
-    try {
-        await casualSession.save();
-        res.status(201).json(casualSession);
-    } catch (err) {
-        res.status(500).json({ message: "Error creating casual session", error: err });
-    }
-});
-
-// 5️⃣ Get session details
 app.get("/api/session/:sessionId", async (req, res) => {
     const { sessionId } = req.params;
     try {
         const session = await Session.findOne({ sessionId });
-
         if (!session) {
             return res.status(404).json({ message: "Session not found" });
         }
-
         res.json(session);
     } catch (err) {
         res.status(500).json({ message: "Error fetching session", error: err });
     }
 });
 
-// Start the server
+app.get("/api/sessions", async (req, res) => {
+    try {
+        const sessions = await Session.find();
+        res.json(sessions);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching sessions", error: err });
+    }
+});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
