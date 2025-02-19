@@ -11,6 +11,11 @@ import RobotAnimation from '../assets/RoboAnimation.json';
 const Avatar2 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<any>(null);
+  const handleMouseEnter = () => {
+    if (animationRef.current && animationRef.current.play) {
+      animationRef.current.play();
+    }
+  };
 
   const handleClick = () => {
     setIsPlaying(true);
@@ -45,13 +50,18 @@ const Avatar2 = () => {
   const handleSophisticatedClick = () => {
     navigate('/sophisticated-session');
   };
+
   const handleStatsClick = () => {
     console.log('Stats clicked');
     navigate('/stats');
   };
 
+  const handleBackClick = () => {
+    endSession(); // Reset the session state
+  };
+
   return (
-    <div className='relative flex h-screen w-full flex-col items-center bg-[#020B24]'>
+    <div className='relative flex min-h-screen w-full overflow-x-hidden flex-col items-center bg-[#020B24]'>
       {/* Session Message at top when active */}
       {isSessionActive && sessionMessage && (
         <div className='mt-8 bg-[#3454a9] p-6 rounded-[20px] max-w-[377px] text-center'>
@@ -65,7 +75,7 @@ const Avatar2 = () => {
       <div className='flex flex-col items-center justify-center flex-grow'>
         {!isSessionActive && (
           <div className='flex gap-8 mb-8'>
-            <div className='flex flex-col  items-center gap-8 mb-8'>
+            <div className='flex flex-col items-center gap-8 mb-8'>
               {/* Robot Avatar Container */}
               <img src={robo} alt='Robot' />
 
@@ -101,15 +111,28 @@ const Avatar2 = () => {
         {/* Timer when session is active */}
         {isSessionActive && (
           <div className='flex flex-col items-center gap-16'>
-            {' '}
-            <Lottie
-              onClick={handleClick}
-              lottieRef={animationRef} // Assign the ref
-              animationData={RobotAnimation}
-              loop={false} // Important: Set loop to false if you want it to play once per click
-              autoplay={false} // Important: Set autoplay to false to control it with state
-              onComplete={handleComplete}
-            />
+            {/* Back Button */}
+            <button
+              onClick={handleBackClick}
+              className='absolute top-8 left-8 text-white'
+            >
+              <svg width='113' height='59' viewBox='0 0 113 59' fill='none'>
+                <path
+                  d='M111 29.5H2M2 29.5L29.5 2M2 29.5L29.5 57'
+                  stroke='white'
+                  strokeWidth='3'
+                />
+              </svg>
+            </button>
+            <div className='cursor-pointer' onMouseEnter={handleMouseEnter}>
+              <Lottie
+                lottieRef={animationRef}
+                animationData={RobotAnimation}
+                loop={false}
+                autoplay={false}
+                onComplete={handleComplete}
+              />
+            </div>
             <Timer initialMinutes={minutes} />
           </div>
         )}

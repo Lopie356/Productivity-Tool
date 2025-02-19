@@ -1,6 +1,7 @@
 import { Button } from './ui/button';
 
 import robo from '../assets/Robo.svg';
+import { useNavigate } from 'react-router-dom';
 
 interface StatsRowProps {
   date: string;
@@ -45,6 +46,10 @@ const StatsRow = ({
 );
 
 const StatsView = () => {
+  const navigate = useNavigate();
+  const handleOnClickBack = () => {
+    navigate(-1);
+  };
   const mockData: StatsRowProps[] = [
     {
       date: '18 Feb',
@@ -84,6 +89,7 @@ const StatsView = () => {
       <Button
         variant='ghost'
         className='absolute top-8 left-8 text-white hover:text-white hover:bg-transparent'
+        onClick={handleOnClickBack}
       >
         <span className='text-4xl'>←</span>
       </Button>

@@ -35,6 +35,10 @@ const SophisticatedSession = () => {
   const handleBackButton = () => {
     navigate(-1);
   };
+  const handleOnClickStats = () => {
+    console.log('Stats clicked');
+    navigate('/stats');
+  };
 
   const [duration, setDuration] = useState<string>('');
   const [tasks, setTasks] = useState<Task[]>([
@@ -136,6 +140,7 @@ const SophisticatedSession = () => {
       <Button
         className='absolute top-8 right-8 h-[63px] w-[237px] rounded-[20px] bg-[#5d7fdc] hover:bg-[#5d7fdc]/90'
         variant='secondary'
+        onClick={handleOnClickStats}
       >
         <span className="font-['Kdam_Thmor_Pro'] text-[25px] leading-[39px] text-white">
           View Stats
