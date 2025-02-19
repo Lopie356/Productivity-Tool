@@ -1,12 +1,32 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { useSessionManager } from '../session/useSessionManager';
 import RobotAvatar from './Avatar';
 import robo from '../assets/Robo.svg';
 import Timer from './Timer';
 import { useNavigate } from 'react-router-dom';
+import Lottie from 'lottie-react';
+import RobotAnimation from '../assets/RoboAnimation.json';
 
 const Avatar2 = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef<any>(null);
+
+  const handleClick = () => {
+    setIsPlaying(true);
+
+    if (animationRef.current && animationRef.current.play) {
+      animationRef.current.play(); // Start animation
+    }
+  };
+
+  const handleComplete = () => {
+    setIsPlaying(false); // Reset animation state to allow retriggering
+    if (animationRef.current && animationRef.current.goToAndStop) {
+      animationRef.current.goToAndStop(0, true); // Reset to the beginning
+    }
+  };
+
   const {
     sessionType,
     sessionMessage,
@@ -82,7 +102,14 @@ const Avatar2 = () => {
         {isSessionActive && (
           <div className='flex flex-col items-center gap-16'>
             {' '}
-            <img src={robo} alt='Robot' className='w-[265px] h-[175px]' />
+            <Lottie
+              onClick={handleClick}
+              lottieRef={animationRef} // Assign the ref
+              animationData={RobotAnimation}
+              loop={false} // Important: Set loop to false if you want it to play once per click
+              autoplay={false} // Important: Set autoplay to false to control it with state
+              onComplete={handleComplete}
+            />
             <Timer initialMinutes={minutes} />
           </div>
         )}
