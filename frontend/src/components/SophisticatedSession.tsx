@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import RobotAvatar from './Avatar';
 import Timer from './Timer';
 import robo from '../assets/Robo.svg';
 import { useNavigate } from 'react-router-dom';
+import Lottie from 'lottie-react';
+import RobotAnimation from '../assets/RoboAnimation.json';
 
 interface Task {
   id: number;
@@ -11,6 +13,24 @@ interface Task {
 }
 
 const SophisticatedSession = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef<any>(null);
+
+  const handleClick = () => {
+    setIsPlaying(true);
+
+    if (animationRef.current && animationRef.current.play) {
+      animationRef.current.play(); // Start animation
+    }
+  };
+
+  const handleComplete = () => {
+    setIsPlaying(false); // Reset animation state to allow retriggering
+    if (animationRef.current && animationRef.current.goToAndStop) {
+      animationRef.current.goToAndStop(0, true); // Reset to the beginning
+    }
+  };
+
   const navigate = useNavigate();
   const handleBackButton = () => {
     navigate(-1);
@@ -77,7 +97,14 @@ const SophisticatedSession = () => {
     return (
       <div className='min-h-screen w-full bg-[#020B24]  flex flex-col items-center justify-center'>
         <div className='flex flex-col items-center gap-8'>
-          <img src={robo} alt='Robot' />
+          <Lottie
+            onClick={handleClick}
+            lottieRef={animationRef} // Assign the ref
+            animationData={RobotAnimation}
+            loop={false} // Important: Set loop to false if you want it to play once per click
+            autoplay={false} // Important: Set autoplay to false to control it with state
+            onComplete={handleComplete}
+          />
           <Timer key={initialMinutes} initialMinutes={initialMinutes} />
           <div className="font-['Kdam_Thmor_Pro'] text-white text-xl">
             {sessionType === 'casual'
